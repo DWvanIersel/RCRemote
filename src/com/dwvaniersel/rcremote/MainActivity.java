@@ -2,10 +2,12 @@ package com.dwvaniersel.rcremote;
 
 import java.util.Iterator;
 import java.util.Set;
+import java.util.UUID;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothSocket;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.util.Log;
@@ -41,6 +43,11 @@ public class MainActivity extends Activity {
 	}
 	
 	public void connectToDevice(BluetoothDevice bd) {
-		
+		try {
+			BluetoothSocket socket = bd.createRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"));
+			socket.connect();
+		} catch (Exception e) {
+			Log.e(TAG, "Failed in connectToDevice() " + e.getMessage());
+		}
 	}
 }
