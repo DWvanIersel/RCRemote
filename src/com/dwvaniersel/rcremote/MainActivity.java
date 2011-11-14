@@ -103,6 +103,10 @@ public class MainActivity extends Activity {
 	}
 	
 	private void disconnectFromDevice() {
-		//TODO create method
+		try {
+			socket.close();
+		} catch (Exception e) {
+			Log.e(TAG, "Failed in disconnectFromDevice() " + e.getMessage());
+		}
 	}
 }
