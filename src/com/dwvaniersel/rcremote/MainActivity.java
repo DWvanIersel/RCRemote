@@ -38,9 +38,10 @@ public class MainActivity extends Activity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
 		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE); //force landscape orientation
 		setContentView(R.layout.main);
-		
+		setupBtMonitor();
 		
 	}
 	
@@ -64,6 +65,7 @@ public class MainActivity extends Activity {
 		try {
 			is = socket.getInputStream();
 			os = socket.getOutputStream();
+			bConnected = true;
 		} catch (Exception e) {
 			is = null;
 			os = null;
@@ -72,7 +74,7 @@ public class MainActivity extends Activity {
 	}
 	
 	private void handleDisconnected() {
-		//TODO create method
+		bConnected = false;
 	}
 	
 	public void findDevice() {
