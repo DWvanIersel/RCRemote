@@ -1,7 +1,6 @@
 package com.dwvaniersel.rcremote;
 
 import java.io.DataOutputStream;
-import java.io.IOException;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.UUID;
@@ -50,6 +49,50 @@ public class MainActivity extends Activity {
 		setupBtMonitor();
 		
 		findDevice();
+		
+		float speedF = 10.0f;
+		float speedB = -20.0f;
+		float turnRateL = -50.0f;
+		float turnRateR = 20.0f;
+		try {
+			os.writeByte(COMMAND_SETSPEED);
+			os.writeFloat(speedF);
+			os.writeByte(COMMAND_TRAVEL);
+			os.flush();
+			
+			Thread.sleep(3000);
+
+			os.writeByte(COMMAND_STEER);
+			os.writeFloat(turnRateL);
+			os.flush();
+			
+			Thread.sleep(2000);
+			
+			os.writeByte(COMMAND_STOP);
+			os.flush();
+			
+			Thread.sleep(1000);
+			
+			os.writeByte(COMMAND_SETSPEED);
+			os.writeFloat(speedB);
+			os.writeByte(COMMAND_STEER);
+			os.writeFloat(turnRateR);
+			os.flush();
+			
+			Thread.sleep(2000);
+			
+			os.writeByte(COMMAND_STEER);
+			os.writeFloat(0.0f);
+			os.flush();
+			
+			Thread.sleep(1000);
+			
+			os.writeByte(COMMAND_STOP);
+			os.flush();
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		
 	}
 	
