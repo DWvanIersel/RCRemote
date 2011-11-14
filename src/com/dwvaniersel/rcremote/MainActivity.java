@@ -1,7 +1,6 @@
 package com.dwvaniersel.rcremote;
 
 import java.io.DataOutputStream;
-import java.io.IOException;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.UUID;
