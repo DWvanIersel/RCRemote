@@ -22,14 +22,18 @@ public class MainActivity extends Activity {
 	private final String TAG = "MainActivity";
 	private final String DEVICENAME = "PFWSNXT";
 	
-	private BroadcastReceiver btMonitor = null;
 	
-	// Variables necessary for Bluetooth-connection
-	BluetoothSocket socket;
-	InputStream is;
-	OutputStream os;
+	// BT variables
+	private BluetoothAdapter btInterface;
+	private Set<BluetoothDevice> pairedDevices;
+	private BluetoothSocket socket;
+	InputStream is = null;
+	OutputStream os = null;
+	boolean bConnected = false;
+	// End BT variables
 	
-	boolean bConnected;
+	// Broadcast receiver to handle bt events
+	BroadcastReceiver btMonitor = null;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -38,35 +42,6 @@ public class MainActivity extends Activity {
 		setContentView(R.layout.main);
 		
 		
-	}
-	
-	public void findDevice() {
-		try {
-			BluetoothAdapter btInterface = BluetoothAdapter.getDefaultAdapter();
-			Set<BluetoothDevice> pairedDevices = btInterface.getBondedDevices();
-			Iterator<BluetoothDevice> it = pairedDevices.iterator();
-			while (it.hasNext()) {
-				BluetoothDevice bd = it.next();
-				if (bd.getName().equalsIgnoreCase(DEVICENAME)) {
-					connectToDevice(bd);
-				}
-			}
-		} catch (Exception e) {
-			Log.e(TAG, "Failed in findDevice() " + e.getMessage());
-		}
-	}
-	
-	public void connectToDevice(BluetoothDevice bd) {
-		try {
-			socket = bd.createRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"));
-			socket.connect();
-		} catch (Exception e) {
-			Log.e(TAG, "Failed in connectToDevice() " + e.getMessage());
-		}
-	}
-	
-	public void disconnectFromDevice() {
-		//TODO create method
 	}
 	
 	private void setupBtMonitor() {
@@ -97,6 +72,35 @@ public class MainActivity extends Activity {
 	}
 	
 	private void handleDisconnected() {
+		//TODO create method
+	}
+	
+	public void findDevice() {
+		try {
+			btInterface = BluetoothAdapter.getDefaultAdapter();
+			pairedDevices = btInterface.getBondedDevices();
+			Iterator<BluetoothDevice> it = pairedDevices.iterator();
+			while (it.hasNext()) {
+				BluetoothDevice bd = it.next();
+				if (bd.getName().equalsIgnoreCase(DEVICENAME)) {
+					connectToDevice(bd);
+				}
+			}
+		} catch (Exception e) {
+			Log.e(TAG, "Failed in findDevice() " + e.getMessage());
+		}
+	}
+	
+	private void connectToDevice(BluetoothDevice bd) {
+		try {
+			socket = bd.createRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"));
+			socket.connect();
+		} catch (Exception e) {
+			Log.e(TAG, "Failed in connectToDevice() " + e.getMessage());
+		}
+	}
+	
+	private void disconnectFromDevice() {
 		//TODO create method
 	}
 }
