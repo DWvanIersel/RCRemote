@@ -51,22 +51,6 @@ public class MainActivity extends Activity {
 		
 		findDevice();
 		
-		float speed = 10.0f;
-		try {
-			os.writeByte(COMMAND_SETSPEED);
-			os.writeFloat(speed);
-			os.writeByte(COMMAND_TRAVEL);
-			os.flush();
-			
-			Thread.sleep(10000);
-
-			os.writeByte(COMMAND_STOP);
-			os.flush();
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		
 	}
 	
 	private void setupBtMonitor() {
