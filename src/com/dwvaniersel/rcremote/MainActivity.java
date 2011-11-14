@@ -1,5 +1,7 @@
 package com.dwvaniersel.rcremote;
 
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.UUID;
@@ -8,6 +10,9 @@ import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.util.Log;
@@ -16,6 +21,15 @@ public class MainActivity extends Activity {
 	
 	private final String TAG = "MainActivity";
 	private final String DEVICENAME = "PFWSNXT";
+	
+	private BroadcastReceiver btMonitor = null;
+	
+	// Variables necessary for Bluetooth-connection
+	BluetoothSocket socket;
+	InputStream is;
+	OutputStream os;
+	
+	boolean bConnected;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -44,10 +58,45 @@ public class MainActivity extends Activity {
 	
 	public void connectToDevice(BluetoothDevice bd) {
 		try {
-			BluetoothSocket socket = bd.createRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"));
+			socket = bd.createRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"));
 			socket.connect();
 		} catch (Exception e) {
 			Log.e(TAG, "Failed in connectToDevice() " + e.getMessage());
 		}
+	}
+	
+	public void disconnectFromDevice() {
+		//TODO create method
+	}
+	
+	private void setupBtMonitor() {
+		btMonitor = new BroadcastReceiver() {
+
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				if (intent.getAction().equals("android.bluetooth.device.action.ACL_CONNECTED")) {
+					handleConnected();
+				}
+				if (intent.getAction().equals("android.bluetooth.device.action.ACL_DISCONNECTED")) {
+					handleDisconnected();
+				}
+			}
+			
+		};
+	}
+	
+	private void handleConnected() {
+		try {
+			is = socket.getInputStream();
+			os = socket.getOutputStream();
+		} catch (Exception e) {
+			is = null;
+			os = null;
+			disconnectFromDevice();
+		}
+	}
+	
+	private void handleDisconnected() {
+		//TODO create method
 	}
 }
