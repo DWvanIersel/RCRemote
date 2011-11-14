@@ -1,7 +1,7 @@
 package com.dwvaniersel.rcremote;
 
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.UUID;
@@ -27,10 +27,16 @@ public class MainActivity extends Activity {
 	private BluetoothAdapter btInterface;
 	private Set<BluetoothDevice> pairedDevices;
 	private BluetoothSocket socket;
-	InputStream is = null;
-	OutputStream os = null;
+	DataOutputStream os = null;
 	boolean bConnected = false;
 	// End BT variables
+	
+	// Command variables
+	public static final byte COMMAND_SETSPEED	= 1 << 0; // Followed by speed: positive = forward, negative = backward
+	public static final byte COMMAND_TRAVEL		= 1 << 1;
+	public static final byte COMMAND_STEER		= 1 << 2; // Followed by turnRate: positive = right, negative = left
+	public static final byte COMMAND_STOP		= 1 << 3;
+	// End command variables
 	
 	// Broadcast receiver to handle bt events
 	BroadcastReceiver btMonitor = null;
@@ -42,6 +48,24 @@ public class MainActivity extends Activity {
 		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE); //force landscape orientation
 		setContentView(R.layout.main);
 		setupBtMonitor();
+		
+		findDevice();
+		
+		float speed = 10.0f;
+		try {
+			os.writeByte(COMMAND_SETSPEED);
+			os.writeFloat(speed);
+			os.writeByte(COMMAND_TRAVEL);
+			os.flush();
+			
+			Thread.sleep(10000);
+
+			os.writeByte(COMMAND_STOP);
+			os.flush();
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		
 	}
 	
@@ -63,11 +87,9 @@ public class MainActivity extends Activity {
 	
 	private void handleConnected() {
 		try {
-			is = socket.getInputStream();
-			os = socket.getOutputStream();
+			os = new DataOutputStream(socket.getOutputStream());
 			bConnected = true;
 		} catch (Exception e) {
-			is = null;
 			os = null;
 			disconnectFromDevice();
 		}
