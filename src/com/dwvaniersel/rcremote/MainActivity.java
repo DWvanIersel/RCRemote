@@ -1,6 +1,7 @@
 package com.dwvaniersel.rcremote;
 
 import java.io.DataOutputStream;
+import java.lang.reflect.Method;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.UUID;
@@ -24,8 +25,8 @@ public class MainActivity extends Activity {
 	
 	// BT variables
 	private BluetoothAdapter btInterface;
-	private Set<BluetoothDevice> pairedDevices;
 	private BluetoothSocket socket;
+	private BluetoothDevice device;
 	DataOutputStream os = null;
 	boolean bConnected = false;
 	// End BT variables
@@ -46,8 +47,8 @@ public class MainActivity extends Activity {
 		
 		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE); //force landscape orientation
 		setContentView(R.layout.main);
-		setupBtMonitor();
 		
+		setupBtMonitor();
 		findDevice();
 		
 		float speedF = 10.0f;
@@ -129,23 +130,32 @@ public class MainActivity extends Activity {
 	public void findDevice() {
 		try {
 			btInterface = BluetoothAdapter.getDefaultAdapter();
-			pairedDevices = btInterface.getBondedDevices();
-			Iterator<BluetoothDevice> it = pairedDevices.iterator();
-			while (it.hasNext()) {
-				BluetoothDevice bd = it.next();
-				if (bd.getName().equalsIgnoreCase(DEVICENAME)) {
-					connectToDevice(bd);
+			Set<BluetoothDevice> pairedDevices = btInterface.getBondedDevices();
+			for (BluetoothDevice someDevice : pairedDevices) {
+				if (someDevice.getName().equalsIgnoreCase(DEVICENAME)) {
+					device = someDevice;
+					break;
 				}
+			}
+			if (device == null) {
+				// fail
+			}
+			else {
+				connectToDevice();
 			}
 		} catch (Exception e) {
 			Log.e(TAG, "Failed in findDevice() " + e.getMessage());
 		}
 	}
 	
-	private void connectToDevice(BluetoothDevice bd) {
+	private void connectToDevice() {
 		try {
-			socket = bd.createRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"));
+			
+			Method m = device.getClass().getMethod("createRfcommSocket", new Class[] {int.class});
+	        socket = (BluetoothSocket) m.invoke(device, 1);
+			Log.i(TAG, "Voor connect");
 			socket.connect();
+			Log.i(TAG, "Na connect");
 		} catch (Exception e) {
 			Log.e(TAG, "Failed in connectToDevice() " + e.getMessage());
 		}
@@ -154,6 +164,7 @@ public class MainActivity extends Activity {
 	private void disconnectFromDevice() {
 		try {
 			socket.close();
+			device = null;
 		} catch (Exception e) {
 			Log.e(TAG, "Failed in disconnectFromDevice() " + e.getMessage());
 		}
