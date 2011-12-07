@@ -1,8 +1,6 @@
 package com.dwvaniersel.rcremote;
 
 import java.io.DataOutputStream;
-import java.lang.reflect.Method;
-import java.util.Iterator;
 import java.util.Set;
 import java.util.UUID;
 
@@ -16,12 +14,19 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 
 public class MainActivity extends Activity {
 	
 	private final String TAG = "MainActivity";
 	private final String DEVICENAME = "PFWSNXT";
 	
+	// Layout variables
+	Button mBtnConnect;
+	Button mBtnDisconnect;
+	Button mBtnSendCommands;
+	// End layout variables
 	
 	// BT variables
 	private BluetoothAdapter btInterface;
@@ -47,10 +52,94 @@ public class MainActivity extends Activity {
 		
 		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE); //force landscape orientation
 		setContentView(R.layout.main);
+		mBtnConnect = (Button) findViewById(R.id.btnConnect);
+		mBtnDisconnect = (Button) findViewById(R.id.btnDisconnect);
+		mBtnSendCommands = (Button) findViewById(R.id.btnSendCommands);
 		
 		setupBtMonitor();
-		findDevice();
-		
+				
+	}
+	
+	private void setupBtMonitor() {
+		Log.i(TAG, "BTMonitor wordt uitgevoerd");
+		btMonitor = new BroadcastReceiver() {
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				if (intent.getAction().equals("android.bluetooth.device.action.ACL_CONNECTED")) {
+					Log.i(TAG, "voor handleConnected()");
+					handleConnected();
+					Log.i(TAG, "na handleConnected()");
+				}
+				if (intent.getAction().equals("android.bluetooth.device.action.ACL_DISCONNECTED")) {
+					handleDisconnected();
+				}
+			}
+			
+		};
+	}
+	
+	private void handleConnected() {
+		try {
+			Log.i(TAG, "begin handleConnected()");
+			os = new DataOutputStream(socket.getOutputStream());
+			bConnected = true;
+			Log.i(TAG, "na handleConnected()");
+		} catch (Exception e) {
+			os = null;
+			disconnectFromDevice();
+		}
+	}
+	
+	private void handleDisconnected() {
+		bConnected = false;
+	}
+	
+	public void findDevice(View view) {
+		try {
+			btInterface = BluetoothAdapter.getDefaultAdapter();
+			Set<BluetoothDevice> pairedDevices = btInterface.getBondedDevices();
+			for (BluetoothDevice someDevice : pairedDevices) {
+				if (someDevice.getName().equalsIgnoreCase(DEVICENAME)) {
+					device = someDevice;
+					break;
+				}
+			}
+			if (device == null) {
+				// fail
+			}
+			else {
+				connectToDevice();
+			}
+		} catch (Exception e) {
+			Log.e(TAG, "Failed in findDevice() " + e.getMessage());
+		}
+	}
+	
+	private void connectToDevice() {
+		try {
+			socket = device.createRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"));
+			Log.i(TAG, "Voor connect");
+			socket.connect();
+			Log.i(TAG, "Na connect");
+		} catch (Exception e) {
+			Log.e(TAG, "Failed in connectToDevice() " + e.getMessage());
+		}
+	}
+	
+	private void disconnectFromDevice() {
+		try {
+			socket.close();
+			device = null;
+		} catch (Exception e) {
+			Log.e(TAG, "Failed in disconnectFromDevice() " + e.getMessage());
+		}
+	}
+	
+	public void disconnect(View view) {
+		disconnectFromDevice();
+	}
+	
+	public void sendCommands(View view) {
 		float speedF = 10.0f;
 		float speedB = -20.0f;
 		float turnRateL = -50.0f;
@@ -93,80 +182,6 @@ public class MainActivity extends Activity {
 			
 		} catch (Exception e) {
 			e.printStackTrace();
-		}
-		
-	}
-	
-	private void setupBtMonitor() {
-		btMonitor = new BroadcastReceiver() {
-
-			@Override
-			public void onReceive(Context context, Intent intent) {
-				if (intent.getAction().equals("android.bluetooth.device.action.ACL_CONNECTED")) {
-					handleConnected();
-				}
-				if (intent.getAction().equals("android.bluetooth.device.action.ACL_DISCONNECTED")) {
-					handleDisconnected();
-				}
-			}
-			
-		};
-	}
-	
-	private void handleConnected() {
-		try {
-			os = new DataOutputStream(socket.getOutputStream());
-			bConnected = true;
-		} catch (Exception e) {
-			os = null;
-			disconnectFromDevice();
-		}
-	}
-	
-	private void handleDisconnected() {
-		bConnected = false;
-	}
-	
-	public void findDevice() {
-		try {
-			btInterface = BluetoothAdapter.getDefaultAdapter();
-			Set<BluetoothDevice> pairedDevices = btInterface.getBondedDevices();
-			for (BluetoothDevice someDevice : pairedDevices) {
-				if (someDevice.getName().equalsIgnoreCase(DEVICENAME)) {
-					device = someDevice;
-					break;
-				}
-			}
-			if (device == null) {
-				// fail
-			}
-			else {
-				connectToDevice();
-			}
-		} catch (Exception e) {
-			Log.e(TAG, "Failed in findDevice() " + e.getMessage());
-		}
-	}
-	
-	private void connectToDevice() {
-		try {
-			
-			Method m = device.getClass().getMethod("createRfcommSocket", new Class[] {int.class});
-	        socket = (BluetoothSocket) m.invoke(device, 1);
-			Log.i(TAG, "Voor connect");
-			socket.connect();
-			Log.i(TAG, "Na connect");
-		} catch (Exception e) {
-			Log.e(TAG, "Failed in connectToDevice() " + e.getMessage());
-		}
-	}
-	
-	private void disconnectFromDevice() {
-		try {
-			socket.close();
-			device = null;
-		} catch (Exception e) {
-			Log.e(TAG, "Failed in disconnectFromDevice() " + e.getMessage());
 		}
 	}
 }
