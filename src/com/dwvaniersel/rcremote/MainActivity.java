@@ -29,9 +29,9 @@ public class MainActivity extends Activity {
 	// End layout variables
 	
 	// BT variables
-	private BluetoothAdapter btInterface;
-	private BluetoothSocket socket;
-	private BluetoothDevice device;
+	private BluetoothAdapter btAdapter;
+	private BluetoothSocket btSocket;
+	private BluetoothDevice btDevice;
 	DataOutputStream os = null;
 	boolean bConnected = false;
 	// End BT variables
@@ -81,7 +81,7 @@ public class MainActivity extends Activity {
 	private void handleConnected() {
 		try {
 			Log.i(TAG, "begin handleConnected()");
-			os = new DataOutputStream(socket.getOutputStream());
+			os = new DataOutputStream(btSocket.getOutputStream());
 			bConnected = true;
 			Log.i(TAG, "na handleConnected()");
 		} catch (Exception e) {
@@ -96,15 +96,15 @@ public class MainActivity extends Activity {
 	
 	public void findDevice(View view) {
 		try {
-			btInterface = BluetoothAdapter.getDefaultAdapter();
-			Set<BluetoothDevice> pairedDevices = btInterface.getBondedDevices();
+			btAdapter = BluetoothAdapter.getDefaultAdapter();
+			Set<BluetoothDevice> pairedDevices = btAdapter.getBondedDevices();
 			for (BluetoothDevice someDevice : pairedDevices) {
 				if (someDevice.getName().equalsIgnoreCase(DEVICENAME)) {
-					device = someDevice;
+					btDevice = someDevice;
 					break;
 				}
 			}
-			if (device == null) {
+			if (btDevice == null) {
 				// fail
 			}
 			else {
@@ -117,9 +117,9 @@ public class MainActivity extends Activity {
 	
 	private void connectToDevice() {
 		try {
-			socket = device.createRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"));
+			btSocket = btDevice.createRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"));
 			Log.i(TAG, "Voor connect");
-			socket.connect();
+			btSocket.connect();
 			Log.i(TAG, "Na connect");
 		} catch (Exception e) {
 			Log.e(TAG, "Failed in connectToDevice() " + e.getMessage());
@@ -128,8 +128,8 @@ public class MainActivity extends Activity {
 	
 	private void disconnectFromDevice() {
 		try {
-			socket.close();
-			device = null;
+			btSocket.close();
+			btDevice = null;
 		} catch (Exception e) {
 			Log.e(TAG, "Failed in disconnectFromDevice() " + e.getMessage());
 		}
