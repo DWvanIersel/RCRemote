@@ -50,7 +50,7 @@ public class MainActivity extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE); //force landscape orientation
+		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE); //force landscape orientation
 		setContentView(R.layout.main);
 		mBtnConnect = (Button) findViewById(R.id.btnConnect);
 		mBtnDisconnect = (Button) findViewById(R.id.btnDisconnect);
