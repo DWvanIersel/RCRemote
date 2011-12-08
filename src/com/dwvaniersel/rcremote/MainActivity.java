@@ -11,11 +11,13 @@ import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 public class MainActivity extends Activity {
 	
@@ -58,6 +60,21 @@ public class MainActivity extends Activity {
 		
 		setupBtMonitor();
 				
+	}
+	@Override
+	public void onResume() {
+		super.onResume();
+		Log.i(TAG, "onResume");
+		
+		registerReceiver(btMonitor,new IntentFilter("android.bluetooth.device.action.ACL_CONNECTED"));
+    	registerReceiver(btMonitor,new IntentFilter("android.bluetooth.device.action.ACL_DISCONNECTED"));
+	}
+	
+	@Override
+	public void onPause() {
+		super.onPause();
+		
+		unregisterReceiver(btMonitor);
 	}
 	
 	private void setupBtMonitor() {
@@ -123,6 +140,7 @@ public class MainActivity extends Activity {
 			Log.i(TAG, "Na connect");
 		} catch (Exception e) {
 			Log.e(TAG, "Failed in connectToDevice() " + e.getMessage());
+			Toast.makeText(this, "Failed at connecting to the NXT Bot", Toast.LENGTH_LONG).show();
 		}
 	}
 	
@@ -130,6 +148,8 @@ public class MainActivity extends Activity {
 		try {
 			btSocket.close();
 			btDevice = null;
+			bConnected = false;
+			Toast.makeText(this, "Succesfully disconnected from NXT Bot", Toast.LENGTH_LONG).show();
 		} catch (Exception e) {
 			Log.e(TAG, "Failed in disconnectFromDevice() " + e.getMessage());
 		}
