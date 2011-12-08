@@ -15,7 +15,9 @@ import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnTouchListener;
 import android.widget.Button;
 import android.widget.Toast;
 
@@ -24,10 +26,13 @@ public class MainActivity extends Activity {
 	private final String TAG = "MainActivity";
 	private final String DEVICENAME = "PFWSNXT";
 	
+	float mSpeed = 10.0f;
+	
 	// Layout variables
 	Button mBtnConnect;
 	Button mBtnDisconnect;
 	Button mBtnSendCommands;
+	Button mBtnForward;
 	// End layout variables
 	
 	// BT variables
@@ -57,17 +62,32 @@ public class MainActivity extends Activity {
 		mBtnConnect = (Button) findViewById(R.id.btnConnect);
 		mBtnDisconnect = (Button) findViewById(R.id.btnDisconnect);
 		mBtnSendCommands = (Button) findViewById(R.id.btnSendCommands);
+		mBtnForward = (Button) findViewById(R.id.btnForward);
 		
 		setupBtMonitor();
-				
+		
+		mBtnForward.setOnTouchListener(new OnTouchListener() {
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+				if (event.getAction() == MotionEvent.ACTION_DOWN) {
+					moveForward();
+					return true;
+				}
+				else if (event.getAction() == MotionEvent.ACTION_UP) {
+					stop();
+					return true;
+				}
+				return false;
+			}
+		});
 	}
 	@Override
 	public void onResume() {
 		super.onResume();
 		Log.i(TAG, "onResume");
 		
-		registerReceiver(btMonitor,new IntentFilter("android.bluetooth.device.action.ACL_CONNECTED"));
-    	registerReceiver(btMonitor,new IntentFilter("android.bluetooth.device.action.ACL_DISCONNECTED"));
+		registerReceiver(btMonitor, new IntentFilter("android.bluetooth.device.action.ACL_CONNECTED"));
+    	registerReceiver(btMonitor, new IntentFilter("android.bluetooth.device.action.ACL_DISCONNECTED"));
 	}
 	
 	@Override
@@ -75,6 +95,7 @@ public class MainActivity extends Activity {
 		super.onPause();
 		
 		unregisterReceiver(btMonitor);
+		disconnectFromDevice();
 	}
 	
 	private void setupBtMonitor() {
@@ -138,9 +159,10 @@ public class MainActivity extends Activity {
 			Log.i(TAG, "Voor connect");
 			btSocket.connect();
 			Log.i(TAG, "Na connect");
+			Toast.makeText(this, "Connected to " + DEVICENAME, Toast.LENGTH_LONG).show();
 		} catch (Exception e) {
 			Log.e(TAG, "Failed in connectToDevice() " + e.getMessage());
-			Toast.makeText(this, "Failed at connecting to the NXT Bot", Toast.LENGTH_LONG).show();
+			Toast.makeText(this, "Connecting to the NXT bot failed", Toast.LENGTH_LONG).show();
 		}
 	}
 	
@@ -149,9 +171,10 @@ public class MainActivity extends Activity {
 			btSocket.close();
 			btDevice = null;
 			bConnected = false;
-			Toast.makeText(this, "Succesfully disconnected from NXT Bot", Toast.LENGTH_LONG).show();
+			Toast.makeText(this, "Succesfully disconnected from the NXT bot", Toast.LENGTH_LONG).show();
 		} catch (Exception e) {
 			Log.e(TAG, "Failed in disconnectFromDevice() " + e.getMessage());
+			Toast.makeText(this, "Disconnecting from the NXT bot failed", Toast.LENGTH_LONG).show();
 		}
 	}
 	
@@ -161,9 +184,7 @@ public class MainActivity extends Activity {
 	
 	public void sendCommands(View view) {
 		float speedF = 10.0f;
-		float speedB = -20.0f;
 		float turnRateL = -50.0f;
-		float turnRateR = 20.0f;
 		try {
 			os.writeByte(COMMAND_SETSPEED);
 			os.writeFloat(speedF);
@@ -180,28 +201,29 @@ public class MainActivity extends Activity {
 			
 			os.writeByte(COMMAND_STOP);
 			os.flush();
-			
-			Thread.sleep(1000);
-			
-			os.writeByte(COMMAND_SETSPEED);
-			os.writeFloat(speedB);
-			os.writeByte(COMMAND_STEER);
-			os.writeFloat(turnRateR);
-			os.flush();
-			
-			Thread.sleep(2000);
-			
-			os.writeByte(COMMAND_STEER);
-			os.writeFloat(0.0f);
-			os.flush();
-			
-			Thread.sleep(1000);
-			
-			os.writeByte(COMMAND_STOP);
-			os.flush();
-			
 		} catch (Exception e) {
 			e.printStackTrace();
+		}
+	}
+	
+	public void moveForward() {
+		try {
+			os.writeByte(COMMAND_SETSPEED);
+			os.writeFloat(mSpeed);
+			os.writeByte(COMMAND_TRAVEL);
+			os.flush();
+		} catch (Exception e) {
+			Log.e(TAG, "Could not send commands " + e.getMessage());
+		}
+		
+	}
+	
+	public void stop() {
+		try {
+			os.writeByte(COMMAND_STOP);
+			os.flush();
+		} catch (Exception e) {
+			Log.e(TAG, "Could not send commands " + e.getMessage());
 		}
 	}
 }

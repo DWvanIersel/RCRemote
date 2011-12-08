@@ -21,4 +21,10 @@
         android:layout_height="wrap_content"
         android:text="Send commands" android:layout_below="@+id/btnDisconnect" android:onClick="sendCommands"/>
 
+    <Button
+        android:id="@+id/btnForward"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Forward" android:layout_below="@+id/btnSendCommands" android:longClickable="true"/>
+
 </RelativeLayout>
