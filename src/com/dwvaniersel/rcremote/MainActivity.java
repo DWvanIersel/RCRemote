@@ -70,7 +70,7 @@ public class MainActivity extends Activity {
 			@Override
 			public boolean onTouch(View v, MotionEvent event) {
 				if (event.getAction() == MotionEvent.ACTION_DOWN) {
-					moveForward();
+					travel();
 					return true;
 				}
 				else if (event.getAction() == MotionEvent.ACTION_UP) {
@@ -206,7 +206,7 @@ public class MainActivity extends Activity {
 		}
 	}
 	
-	public void moveForward() {
+	public void travel() {
 		try {
 			os.writeByte(COMMAND_SETSPEED);
 			os.writeFloat(mSpeed);
