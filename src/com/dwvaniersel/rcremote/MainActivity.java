@@ -84,7 +84,6 @@ public class MainActivity extends Activity {
 	@Override
 	public void onResume() {
 		super.onResume();
-		Log.i(TAG, "onResume");
 		
 		registerReceiver(btMonitor, new IntentFilter("android.bluetooth.device.action.ACL_CONNECTED"));
     	registerReceiver(btMonitor, new IntentFilter("android.bluetooth.device.action.ACL_DISCONNECTED"));
@@ -99,14 +98,12 @@ public class MainActivity extends Activity {
 	}
 	
 	private void setupBtMonitor() {
-		Log.i(TAG, "BTMonitor wordt uitgevoerd");
+		Log.i(TAG, "BTMonitor started");
 		btMonitor = new BroadcastReceiver() {
 			@Override
 			public void onReceive(Context context, Intent intent) {
 				if (intent.getAction().equals("android.bluetooth.device.action.ACL_CONNECTED")) {
-					Log.i(TAG, "voor handleConnected()");
 					handleConnected();
-					Log.i(TAG, "na handleConnected()");
 				}
 				if (intent.getAction().equals("android.bluetooth.device.action.ACL_DISCONNECTED")) {
 					handleDisconnected();
@@ -118,18 +115,15 @@ public class MainActivity extends Activity {
 	
 	private void handleConnected() {
 		try {
-			Log.i(TAG, "begin handleConnected()");
 			os = new DataOutputStream(btSocket.getOutputStream());
 			bConnected = true;
-			Log.i(TAG, "na handleConnected()");
 		} catch (Exception e) {
 			os = null;
-			disconnectFromDevice();
 		}
 	}
 	
 	private void handleDisconnected() {
-		bConnected = false;
+		disconnectFromDevice();
 	}
 	
 	public void findDevice(View view) {
@@ -143,7 +137,7 @@ public class MainActivity extends Activity {
 				}
 			}
 			if (btDevice == null) {
-				// fail
+				Toast.makeText(this, "The device couldn't be found.", Toast.LENGTH_LONG).show();
 			}
 			else {
 				connectToDevice();
@@ -156,9 +150,7 @@ public class MainActivity extends Activity {
 	private void connectToDevice() {
 		try {
 			btSocket = btDevice.createRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"));
-			Log.i(TAG, "Voor connect");
 			btSocket.connect();
-			Log.i(TAG, "Na connect");
 			Toast.makeText(this, "Connected to " + DEVICENAME, Toast.LENGTH_LONG).show();
 		} catch (Exception e) {
 			Log.e(TAG, "Failed in connectToDevice() " + e.getMessage());
