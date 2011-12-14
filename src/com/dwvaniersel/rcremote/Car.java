@@ -76,13 +76,13 @@ public class Car {
 				}
 			}
 			if (btDevice == null) {
-				Log.i(TAG, "Could not connect to the device.");
+				Log.i(TAG, "Could not find the car.");
 			}
 			else {
 				connectToCar();
 			}
 		} catch (Exception e) {
-			Log.e(TAG, "Failed in findDevice() " + e.getMessage());
+			Log.e(TAG, "Failed in connect() (" + e.getMessage() + ")");
 		}
 	}
 	
@@ -91,7 +91,7 @@ public class Car {
 			btSocket = btDevice.createRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"));
 			btSocket.connect();
 		} catch (Exception e) {
-			Log.e(TAG, "Failed in connectToDevice() " + e.getMessage());
+			Log.e(TAG, "Failed in connecting to the car (" + e.getMessage() + ")");
 		}
 	}
 	
@@ -101,19 +101,37 @@ public class Car {
 			btDevice = null;
 			bConnected = false;
 		} catch (Exception e) {
-			Log.e(TAG, "Failed in disconnectFromDevice() " + e.getMessage());
+			Log.e(TAG, "Failed in disconnecting from the car (" + e.getMessage() + ")");
 		}
 	}
 	
-	public void travel() {
-		
+	public void travel(float speed) {
+		try {
+			os.writeByte(COMMAND_SETSPEED);
+			os.writeFloat(speed);
+			os.writeByte(COMMAND_TRAVEL);
+			os.flush();
+		} catch (Exception e) {
+			Log.e(TAG, "Could not send commands (" + e.getMessage() + ")");
+		}
 	}
 	
-	public void steer() {
-		
+	public void steer(float turnRate) {
+		try {
+			os.writeByte(COMMAND_STEER);
+			os.writeFloat(turnRate);
+			os.flush();
+		} catch (Exception e) {
+			Log.e(TAG, "Could not send commands (" + e.getMessage() + ")");
+		}
 	}
 	
 	public void stop() {
-		
+		try {
+			os.writeByte(COMMAND_STOP);
+			os.flush();
+		} catch (Exception e) {
+			Log.e(TAG, "Could not send commands (" + e.getMessage() + ")");
+		}
 	}
 }
