@@ -24,6 +24,6 @@
     <SeekBar
         android:id="@+id/skbTurnRate"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content" android:layout_below="@+id/btnForward"/>
+        android:layout_height="wrap_content" android:layout_below="@+id/btnForward" android:layout_marginLeft="20dip" android:layout_marginRight="20dip"/>
 
 </RelativeLayout>

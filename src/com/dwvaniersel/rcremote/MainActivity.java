@@ -32,10 +32,13 @@ public class MainActivity extends Activity {
 		
 		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE); //force reversed landscape orientation
 		setContentView(R.layout.main);
+		
 		mBtnConnect = (Button) findViewById(R.id.btnConnect);
 		mBtnDisconnect = (Button) findViewById(R.id.btnDisconnect);
 		mBtnForward = (Button) findViewById(R.id.btnForward);
 		mSkbTurnRate = (SeekBar) findViewById(R.id.skbTurnRate);
+		
+		mSkbTurnRate.setProgress(50);
 		
 		car.setupBtMonitor();
 		
@@ -56,7 +59,7 @@ public class MainActivity extends Activity {
 //				return false;
 //			}
 //		});
-		
+//		
 //		mSkbTurnRate.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
 //			
 //			@Override
