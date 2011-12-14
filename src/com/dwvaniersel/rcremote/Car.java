@@ -27,10 +27,9 @@ public class Car {
 	// End bt variables
 	
 	// Command variables
-	public static final byte COMMAND_SETSPEED	= 1 << 0; // Followed by speed: positive = forward, negative = backward
-	public static final byte COMMAND_TRAVEL		= 1 << 1;
-	public static final byte COMMAND_STEER		= 1 << 2; // Followed by turnRate: positive = right, negative = left
-	public static final byte COMMAND_STOP		= 1 << 3;
+	public static final byte COMMAND_TRAVEL    = 1 << 0; // Followed by speed:     positive = forward, negative = backward
+    public static final byte COMMAND_STEER     = 1 << 1; // Followed by turnRate:  positive = right,   negative = left
+    public static final byte COMMAND_STOP      = 1 << 2;
 	// End command variables
 	
 	public Car() {
@@ -107,9 +106,8 @@ public class Car {
 	
 	public void travel(float speed) {
 		try {
-			os.writeByte(COMMAND_SETSPEED);
-			os.writeFloat(speed);
 			os.writeByte(COMMAND_TRAVEL);
+			os.writeFloat(speed);
 			os.flush();
 		} catch (Exception e) {
 			Log.e(TAG, "Could not send commands (" + e.getMessage() + ")");
