@@ -9,6 +9,8 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.os.PowerManager;
+import android.os.PowerManager.WakeLock;
 import android.view.View;
 import android.widget.Button;
 
@@ -20,6 +22,9 @@ public class MainActivity extends Activity implements SensorEventListener {
 	
 	float mLastTurnRate = 0.0f;
 	float mLastSpeed = 0.0f;
+	
+	PowerManager powerManager;
+	WakeLock wakeLock;
 	
 	// Sensor variables
 	SensorManager mSensorManager;
@@ -39,6 +44,9 @@ public class MainActivity extends Activity implements SensorEventListener {
 		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE); //force reversed landscape orientation
 		setContentView(R.layout.main);
 		
+		powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
+		wakeLock = powerManager.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, TAG);
+		
 		mCar.setupBtMonitor();
 		
 		mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
@@ -52,6 +60,7 @@ public class MainActivity extends Activity implements SensorEventListener {
 	public void onResume() {
 		super.onResume();
 		
+		wakeLock.acquire();
 		mSensorManager.registerListener(this, mOrientationSensor, SensorManager.SENSOR_DELAY_NORMAL);
 		registerReceiver(mCar.btMonitor, new IntentFilter("android.bluetooth.device.action.ACL_CONNECTED"));
     	registerReceiver(mCar.btMonitor, new IntentFilter("android.bluetooth.device.action.ACL_DISCONNECTED"));
@@ -61,6 +70,7 @@ public class MainActivity extends Activity implements SensorEventListener {
 	public void onPause() {
 		super.onPause();
 		
+		wakeLock.release();
 		mSensorManager.unregisterListener(this);
 		unregisterReceiver(mCar.btMonitor);
 		mCar.disconnect();
