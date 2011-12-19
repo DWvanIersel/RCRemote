@@ -9,20 +9,17 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnTouchListener;
 import android.widget.Button;
-import android.widget.SeekBar;
-import android.widget.SeekBar.OnSeekBarChangeListener;
 
 public class MainActivity extends Activity implements SensorEventListener {
 	
 	final static String TAG = "MainActivity";
-	float mSpeed = 30.0f;
-	float mTurnRate;
 	
 	Car mCar = new Car();
+	
+	float mLastTurnRate = 0.0f;
+	float mLastSpeed = 0.0f;
 	
 	// Sensor variables
 	SensorManager mSensorManager;
@@ -33,13 +30,7 @@ public class MainActivity extends Activity implements SensorEventListener {
 	// Layout variables
 	Button mBtnConnect;
 	Button mBtnDisconnect;
-	Button mBtnForward;
-	SeekBar mSkbTurnRate;
 	// End layout variables
-	
-	// Orientation variables
-	float mPitch;
-	// End orientation variables
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -55,20 +46,13 @@ public class MainActivity extends Activity implements SensorEventListener {
 		
 		mBtnConnect = (Button) findViewById(R.id.btnConnect);
 		mBtnDisconnect = (Button) findViewById(R.id.btnDisconnect);
-		mBtnForward = (Button) findViewById(R.id.btnForward);
-		mSkbTurnRate = (SeekBar) findViewById(R.id.skbTurnRate);
-		
-		mSkbTurnRate.setProgress(50);
-		
-		setupTouchListener(mBtnForward);
-//		setupSeekBarChangeListener(mSkbTurnRate);
 	}
 	
 	@Override
 	public void onResume() {
 		super.onResume();
 		
-		mSensorManager.registerListener(this, mOrientationSensor, SensorManager.SENSOR_DELAY_GAME);
+		mSensorManager.registerListener(this, mOrientationSensor, SensorManager.SENSOR_DELAY_NORMAL);
 		registerReceiver(mCar.btMonitor, new IntentFilter("android.bluetooth.device.action.ACL_CONNECTED"));
     	registerReceiver(mCar.btMonitor, new IntentFilter("android.bluetooth.device.action.ACL_DISCONNECTED"));
 	}
@@ -89,45 +73,24 @@ public class MainActivity extends Activity implements SensorEventListener {
 	
 	@Override
 	public void onSensorChanged(SensorEvent event) {
-		mPitch = event.values[1];
-		mTurnRate = (mPitch/90)*150;
-		mCar.steer(mTurnRate);
-	}
-	
-	public void setupTouchListener(Button button) {
-		button.setOnTouchListener(new OnTouchListener() {
-			@Override
-			public boolean onTouch(View v, MotionEvent event) {
-				if (event.getAction() == MotionEvent.ACTION_DOWN) {
-					mCar.travel(mSpeed);
-					return true;
-				}
-				else if (event.getAction() == MotionEvent.ACTION_UP) {
-					mCar.stop();
-					return true;
-				}
-				return false;
-			}
-		});
-	}
-	
-	public void setupSeekBarChangeListener(SeekBar seekBar) {
-		seekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
-			
-			@Override
-			public void onStopTrackingTouch(SeekBar seekBar) {
-			}
-			
-			@Override
-			public void onStartTrackingTouch(SeekBar seekBar) {
-			}
-			
-			@Override
-			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-				float turnRate = (float) ((progress-50)*2);
-				mCar.steer(turnRate);
-			}
-		});
+		float pitch = event.values[1];
+		float roll = event.values[2];
+		
+		float turnRate = (pitch/90.0f)*150.0f;
+		float turnRateDiff = Math.abs(turnRate - mLastTurnRate);
+		
+		if (turnRateDiff > 2.0f) {
+			mCar.steer(turnRate);
+			mLastTurnRate = turnRate;
+		}
+		
+		float speed = (roll/90.0f)*30.0f;
+		float speedDiff = Math.abs(speed - mLastSpeed);
+		
+		if (speedDiff > 1.0f) {
+			mCar.travel(speed);
+			mLastSpeed = speed;
+		}
 	}
 	
 	public void connect(View view) {

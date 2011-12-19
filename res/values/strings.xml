@@ -3,6 +3,5 @@
     <string name="app_name">RC Remote</string>
     <string name="btnConnectText">Connect</string>
     <string name="btnDisconnectText">Disconnect</string>
-    <string name="btnForwardText">Forward</string>
 
 </resources>

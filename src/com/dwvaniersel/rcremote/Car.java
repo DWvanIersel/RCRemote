@@ -53,7 +53,7 @@ public class Car {
 	private void handleConnected() {
 		try {
 			os = new DataOutputStream(btSocket.getOutputStream());
-			bConnected = true;
+			bConnected = true;			
 		} catch (Exception e) {
 			os = null;
 		}
@@ -104,6 +104,7 @@ public class Car {
 	}
 	
 	public void travel(float speed) {
+		Log.i(TAG, "Travel called: " + speed);
 		try {
 			os.writeByte(COMMAND_TRAVEL);
 			os.writeFloat(speed);
@@ -114,19 +115,10 @@ public class Car {
 	}
 	
 	public void steer(float turnRate) {
+		Log.i(TAG, "Steer called: " + turnRate);
 		try {
 			os.writeByte(COMMAND_STEER);
 			os.writeFloat(turnRate);
-			os.flush();
-		} catch (Exception e) {
-			Log.e(TAG, "Could not send commands (" + e.getMessage() + ")");
-		}
-	}
-	
-	public void stop() {
-		try {
-			os.writeByte(COMMAND_TRAVEL);
-			os.writeFloat(0.0f);
 			os.flush();
 		} catch (Exception e) {
 			Log.e(TAG, "Could not send commands (" + e.getMessage() + ")");
