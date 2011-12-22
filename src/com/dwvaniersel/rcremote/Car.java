@@ -17,6 +17,10 @@ public class Car {
 	final static String TAG = "Car";
 	final static String DEVICENAME = "PFWSNXT";
 	
+	float mConvertedPitch = 0.0f;
+	float mLastTurnRate = 0.0f;
+	float mLastSpeed = 0.0f;
+	
 	// Bt variables
 	private BluetoothAdapter btAdapter;
 	private BluetoothSocket btSocket;
@@ -106,6 +110,36 @@ public class Car {
 	
 	public boolean getConnectionState() {
 		return bConnected;
+	}
+	
+	public void drive(float roll) {
+		float speed = ((roll/90.0f)*50.0f)+25.0f;
+		float speedDiff = Math.abs(speed - mLastSpeed);
+		
+		if (speedDiff > 1.0f) {
+			travel(speed);
+			mLastSpeed = speed;
+		}
+	}
+	
+	public void turn(float pitch) {
+		if (pitch < -90) {
+			mConvertedPitch = -180 - pitch;
+		}
+		else if (pitch > 90) {
+			mConvertedPitch = 180 - pitch;
+		}
+		else {
+			mConvertedPitch = pitch;
+		}
+		
+		float turnRate = (mConvertedPitch/90.0f)*150.0f;
+		float turnRateDiff = Math.abs(turnRate - mLastTurnRate);
+		
+		if (turnRateDiff > 2.0f) {
+			steer(turnRate);
+			mLastTurnRate = turnRate;
+		}
 	}
 	
 	public void travel(float speed) {

@@ -88,21 +88,8 @@ public class MainActivity extends Activity implements SensorEventListener {
 			float pitch = event.values[1];
 			float roll = event.values[2];
 			
-			float turnRate = (pitch/90.0f)*150.0f;
-			float turnRateDiff = Math.abs(turnRate - mLastTurnRate);
-			
-			if (turnRateDiff > 2.0f) {
-				mCar.steer(turnRate);
-				mLastTurnRate = turnRate;
-			}
-			
-			float speed = ((roll/90.0f)*50.0f)+25.0f;
-			float speedDiff = Math.abs(speed - mLastSpeed);
-			
-			if (speedDiff > 1.0f) {
-				mCar.travel(speed);
-				mLastSpeed = speed;
-			}
+			mCar.turn(pitch);
+			mCar.drive(roll);
 		}
 	}
 	
