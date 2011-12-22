@@ -103,6 +103,11 @@ public class Car {
 		}
 	}
 	
+	
+	public boolean getConnectionState() {
+		return bConnected;
+	}
+	
 	public void travel(float speed) {
 		Log.i(TAG, "Travel called: " + speed);
 		try {
