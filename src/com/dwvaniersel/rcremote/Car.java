@@ -17,17 +17,19 @@ public class Car {
 	final static String TAG = "Car";
 	final static String DEVICENAME = "PFWSNXT";
 	
+	// Floats for controlling the car
 	float mConvertedPitch = 0.0f;
 	float mLastTurnRate = 0.0f;
 	float mLastSpeed = 0.0f;
+	// End floats
 	
 	// Bt variables
-	private BluetoothAdapter btAdapter;
-	private BluetoothSocket btSocket;
-	private BluetoothDevice btDevice;
-	DataOutputStream os = null;
-	BroadcastReceiver btMonitor = null;
-	boolean bConnected = false;
+	private BluetoothAdapter mBtAdapter;
+	private BluetoothSocket mBtSocket;
+	private BluetoothDevice mBtDevice;
+	DataOutputStream mOs = null;
+	BroadcastReceiver mBtMonitor = null;
+	boolean mBConnected = false;
 	// End bt variables
 	
 	// Command variables
@@ -40,7 +42,7 @@ public class Car {
 	
 	public void setupBtMonitor() {
 		Log.i(TAG, "BTMonitor started");
-		btMonitor = new BroadcastReceiver() {
+		mBtMonitor = new BroadcastReceiver() {
 			@Override
 			public void onReceive(Context context, Intent intent) {
 				if (intent.getAction().equals("android.bluetooth.device.action.ACL_CONNECTED")) {
@@ -50,16 +52,15 @@ public class Car {
 					handleDisconnected();
 				}
 			}
-			
 		};
 	}
 	
 	private void handleConnected() {
 		try {
-			os = new DataOutputStream(btSocket.getOutputStream());
-			bConnected = true;			
+			mOs = new DataOutputStream(mBtSocket.getOutputStream());
+			mBConnected = true;
 		} catch (Exception e) {
-			os = null;
+			mOs = null;
 		}
 	}
 	
@@ -69,15 +70,15 @@ public class Car {
 	
 	public void connect() {
 		try {
-			btAdapter = BluetoothAdapter.getDefaultAdapter();
-			Set<BluetoothDevice> pairedDevices = btAdapter.getBondedDevices();
+			mBtAdapter = BluetoothAdapter.getDefaultAdapter();
+			Set<BluetoothDevice> pairedDevices = mBtAdapter.getBondedDevices();
 			for (BluetoothDevice someDevice : pairedDevices) {
 				if (someDevice.getName().equalsIgnoreCase(DEVICENAME)) {
-					btDevice = someDevice;
+					mBtDevice = someDevice;
 					break;
 				}
 			}
-			if (btDevice == null) {
+			if (mBtDevice == null) {
 				Log.i(TAG, "Could not find the car.");
 			}
 			else {
@@ -90,8 +91,8 @@ public class Car {
 	
 	private void connectToCar() {
 		try {
-			btSocket = btDevice.createRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"));
-			btSocket.connect();
+			mBtSocket = mBtDevice.createRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"));
+			mBtSocket.connect();
 		} catch (Exception e) {
 			Log.e(TAG, "Failed in connecting to the car (" + e.getMessage() + ")");
 		}
@@ -99,17 +100,16 @@ public class Car {
 	
 	public void disconnect() {
 		try {
-			btSocket.close();
-			btDevice = null;
-			bConnected = false;
+			mBtSocket.close();
+			mBtDevice = null;
+			mBConnected = false;
 		} catch (Exception e) {
 			Log.e(TAG, "Failed in disconnecting from the car (" + e.getMessage() + ")");
 		}
 	}
 	
-	
 	public boolean getConnectionState() {
-		return bConnected;
+		return mBConnected;
 	}
 	
 	public void drive(float roll) {
@@ -145,9 +145,9 @@ public class Car {
 	public void travel(float speed) {
 		Log.i(TAG, "Travel called: " + speed);
 		try {
-			os.writeByte(COMMAND_TRAVEL);
-			os.writeFloat(speed);
-			os.flush();
+			mOs.writeByte(COMMAND_TRAVEL);
+			mOs.writeFloat(speed);
+			mOs.flush();
 		} catch (Exception e) {
 			Log.e(TAG, "Could not send commands (" + e.getMessage() + ")");
 		}
@@ -156,9 +156,9 @@ public class Car {
 	public void steer(float turnRate) {
 		Log.i(TAG, "Steer called: " + turnRate);
 		try {
-			os.writeByte(COMMAND_STEER);
-			os.writeFloat(turnRate);
-			os.flush();
+			mOs.writeByte(COMMAND_STEER);
+			mOs.writeFloat(turnRate);
+			mOs.flush();
 		} catch (Exception e) {
 			Log.e(TAG, "Could not send commands (" + e.getMessage() + ")");
 		}

@@ -23,8 +23,8 @@ public class MainActivity extends Activity implements SensorEventListener {
 	float mLastTurnRate = 0.0f;
 	float mLastSpeed = 0.0f;
 	
-	PowerManager powerManager;
-	WakeLock wakeLock;
+	PowerManager mPowerManager;
+	WakeLock mWakeLock;
 	
 	// Sensor variables
 	SensorManager mSensorManager;
@@ -44,8 +44,8 @@ public class MainActivity extends Activity implements SensorEventListener {
 		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE); //force reversed landscape orientation
 		setContentView(R.layout.main);
 		
-		powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
-		wakeLock = powerManager.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, TAG);
+		mPowerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
+		mWakeLock = mPowerManager.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, TAG);
 		
 		mCar.setupBtMonitor();
 		
@@ -60,19 +60,19 @@ public class MainActivity extends Activity implements SensorEventListener {
 	public void onResume() {
 		super.onResume();
 		
-		wakeLock.acquire();
+		mWakeLock.acquire();
 		mSensorManager.registerListener(this, mOrientationSensor, SensorManager.SENSOR_DELAY_NORMAL);
-		registerReceiver(mCar.btMonitor, new IntentFilter("android.bluetooth.device.action.ACL_CONNECTED"));
-    	registerReceiver(mCar.btMonitor, new IntentFilter("android.bluetooth.device.action.ACL_DISCONNECTED"));
+		registerReceiver(mCar.mBtMonitor, new IntentFilter("android.bluetooth.device.action.ACL_CONNECTED"));
+    	registerReceiver(mCar.mBtMonitor, new IntentFilter("android.bluetooth.device.action.ACL_DISCONNECTED"));
 	}
 	
 	@Override
 	public void onPause() {
 		super.onPause();
 		
-		wakeLock.release();
+		mWakeLock.release();
 		mSensorManager.unregisterListener(this);
-		unregisterReceiver(mCar.btMonitor);
+		unregisterReceiver(mCar.mBtMonitor);
 		mCar.disconnect();
 	}
 	
@@ -92,6 +92,19 @@ public class MainActivity extends Activity implements SensorEventListener {
 			mCar.drive(roll);
 		}
 	}
+	
+//	public void updateView() {
+//		boolean connected = mCar.getConnectionState();
+//		
+//		if (connected) {
+//			mBtnConnect.setVisibility(View.GONE);
+//			mBtnDisconnect.setVisibility(View.VISIBLE);
+//		}
+//		else {
+//			mBtnConnect.setVisibility(View.VISIBLE);
+//			mBtnDisconnect.setVisibility(View.GONE);
+//		}
+//	}
 	
 	public void connect(View view) {
 		mCar.connect();
