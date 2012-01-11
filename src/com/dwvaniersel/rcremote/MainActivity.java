@@ -93,19 +93,6 @@ public class MainActivity extends Activity implements SensorEventListener {
 		}
 	}
 	
-//	public void updateView() {
-//		boolean connected = mCar.getConnectionState();
-//		
-//		if (connected) {
-//			mBtnConnect.setVisibility(View.GONE);
-//			mBtnDisconnect.setVisibility(View.VISIBLE);
-//		}
-//		else {
-//			mBtnConnect.setVisibility(View.VISIBLE);
-//			mBtnDisconnect.setVisibility(View.GONE);
-//		}
-//	}
-	
 	public void connect(View view) {
 		mCar.connect();
 	}
