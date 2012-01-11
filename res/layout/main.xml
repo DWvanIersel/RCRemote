@@ -7,24 +7,12 @@
         android:id="@+id/btnConnect"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Connect" android:onClick="findDevice" android:filterTouchesWhenObscured="false"/>
+        android:text="@string/btnConnectText" android:onClick="connect" android:filterTouchesWhenObscured="false"/>
 
     <Button
         android:id="@+id/btnDisconnect"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Disconnect" android:layout_below="@+id/btnConnect" android:onClick="disconnect"/>
-
-    <Button
-        android:id="@+id/btnSendCommands"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="Send commands" android:layout_below="@+id/btnDisconnect" android:onClick="sendCommands"/>
-
-    <Button
-        android:id="@+id/btnForward"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="Forward" android:layout_below="@+id/btnSendCommands" android:longClickable="true"/>
+        android:text="@string/btnDisconnectText" android:layout_below="@+id/btnConnect" android:onClick="disconnect"/>
 
 </RelativeLayout>
