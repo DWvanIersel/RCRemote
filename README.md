@@ -1,7 +1,7 @@
 Alfred: RCRemote
 ================
 
-Alfred is the name of my High School Final Project, which I, [Diederik van Iersel](https://github.com/DWvanIersel), built together with [Douwe Maan](https://github.com/DouweM). 
+Alfred is the name of my High School Final Project, which I built together with [Douwe Maan](https://github.com/DouweM). 
 
 Alfred is, simply put, a robot car that can be controlled remotely using a smartphone.
 
