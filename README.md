@@ -10,4 +10,4 @@ It can be controlled by using an Android phone like a steering wheel.
 
 This project, dubbed RCRemote, is the application running on the Android phone. Its counterpart leJOS NXJ app can be found [here](https://github.com/DouweM/RCCar).
 
-![Alfred](http://d.pr/Zg6Z+)
+![Alfred](http://f.cl.ly/items/1h2n3Q131o3j0e0J3L3G/Alfred.jpg)
